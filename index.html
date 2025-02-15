@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyberpunk Shift Bot</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: #0a0a0a;
+            color: #00ff9d;
+        }
+        .neon-border {
+            box-shadow: 0 0 10px #00ff9d, 0 0 20px #00ff9d, 0 0 30px #00ff9d;
+        }
+        .loading {
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        .cyber-button {
+            background: linear-gradient(45deg, #00ff9d, #00b8ff);
+            border: 2px solid #00ff9d;
+            transition: all 0.3s;
+        }
+        .cyber-button:hover {
+            box-shadow: 0 0 15px #00ff9d;
+            transform: scale(1.05);
+        }
+        .cyber-select {
+            background: rgba(0, 255, 157, 0.1);
+            border: 1px solid #00ff9d;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="min-h-screen p-4 md:p-8">
+        <div class="max-w-md mx-auto bg-black/60 p-6 rounded-lg neon-border">
+            <h1 class="text-2xl md:text-3xl font-bold mb-6 text-center">Cyberpunk Shift Bot</h1>
+            
+            <div class="space-y-4">
+                <!-- Location Selection -->
+                <div>
+                    <label class="block mb-2">Select Location</label>
+                    <select v-model="selectedLocation" class="w-full p-2 rounded cyber-select text-cyan-400" :disabled="isProcessing">
+                        <option value="">Choose Location</option>
+                        <option v-for="loc in locations" :key="loc" :value="loc">{{ loc }}</option>
+                    </select>
+                </div>
+
+                <!-- Name Selection -->
+                <div>
+                    <label class="block mb-2">Select Name</label>
+                    <select v-model="selectedName" class="w-full p-2 rounded cyber-select text-cyan-400" :disabled="isProcessing">
+                        <option value="">Choose Name</option>
+                        <option v-for="name in names" :key="name" :value="name">{{ name }}</option>
+                    </select>
+                </div>
+
+                <!-- Status Display -->
+                <div v-if="status" class="bg-black/40 p-4 rounded border border-cyan-500">
+                    <p class="text-sm" :class="{'loading': isProcessing}">{{ status }}</p>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="space-y-2">
+                    <button @click="startBot" class="w-full cyber-button py-2 rounded text-black font-bold" :disabled="isProcessing">
+                        {{ isProcessing ? 'Processing...' : 'Start Bot' }}
+                    </button>
+                    <button @click="stopBot" class="w-full bg-red-600 hover:bg-red-700 py-2 rounded" :disabled="!isProcessing">
+                        Stop Bot
+                    </button>
+                </div>
+
+                <!-- Log Display -->
+                <div class="mt-4 bg-black/40 p-4 rounded border border-cyan-500 h-40 overflow-y-auto">
+                    <div v-for="(log, index) in logs" :key="index" class="text-sm mb-1">
+                        {{ log }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue
+
+        createApp({
+            data() {
+                return {
+                    locations: ['Location A', 'Location B', 'Location C'],
+                    names: ['Agent 1', 'Agent 2', 'Agent 3'],
+                    selectedLocation: '',
+                    selectedName: '',
+                    isProcessing: false,
+                    status: '',
+                    logs: [],
+                    botInterval: null
+                }
+            },
+            methods: {
+                async startBot() {
+                    if (!this.selectedLocation || !this.selectedName) {
+                        this.status = 'Please select both location and name';
+                        return;
+                    }
+
+                    this.isProcessing = true;
+                    this.status = 'Bot starting...';
+                    this.logs = [];
+
+                    // Simulated bot process
+                    this.addLog('Initializing bot...');
+                    await this.delay(1000);
+                    
+                    this.addLog(`Selected Location: ${this.selectedLocation}`);
+                    await this.delay(800);
+                    
+                    this.addLog(`Selected Name: ${this.selectedName}`);
+                    await this.delay(800);
+                    
+                    this.addLog('Searching for available shifts...');
+                    await this.delay(1500);
+                    
+                    this.addLog('Found shift! Attempting to apply...');
+                    await this.delay(1000);
+                    
+                    this.addLog('Successfully applied for shift!');
+                    await this.delay(800);
+                    
+                    this.addLog('Waiting for offer...');
+                    await this.delay(2000);
+                    
+                    this.addLog('Offer received! Auto-accepting...');
+                    await this.delay(1000);
+                    
+                    this.addLog('Offer accepted successfully!');
+                    this.status = 'Process completed successfully!';
+                    this.isProcessing = false;
+                },
+                stopBot() {
+                    this.isProcessing = false;
+                    this.status = 'Bot stopped';
+                    this.addLog('Bot stopped by user');
+                    clearInterval(this.botInterval);
+                },
+                addLog(message) {
+                    const timestamp = new Date().toLocaleTimeString();
+                    this.logs.unshift(`[${timestamp}] ${message}`);
+                },
+                delay(ms) {
+                    return new Promise(resolve => setTimeout(resolve, ms));
+                }
+            }
+        }).mount('#app')
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
